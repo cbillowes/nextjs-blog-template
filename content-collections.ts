@@ -27,11 +27,13 @@ const posts = defineCollection({
       a._meta.fileName.localeCompare(b._meta.fileName),
     );
     const idx = docs.findIndex((d) => doc._meta.filePath === d._meta.filePath);
+    const prev = idx > 0 ? docs[idx - 1] : null;
+    const next = idx < docs.length - 1 ? docs[idx + 1] : null;
     return {
       ...doc,
       slug: slugify(doc._meta.fileName, doc.title),
-      prev: idx > 0 ? docs[idx - 1] : null,
-      next: idx < docs.length - 1 ? docs[idx + 1] : null,
+      prev: prev ? { ...prev, slug: slugify(prev._meta.filePath, prev.title) } : null,
+      next: next ? { ...next, slug: slugify(next._meta.filePath, next.title) } : null,
     };
   },
 });
