@@ -1,4 +1,5 @@
 import { defineCollection, defineConfig } from '@content-collections/core';
+import readingTime from 'reading-time';
 import { z } from 'zod';
 
 function slugify(filePath: string, title: string) {
@@ -34,6 +35,7 @@ const posts = defineCollection({
       slug: slugify(doc._meta.fileName, doc.title),
       prev: prev ? { ...prev, slug: slugify(prev._meta.filePath, prev.title) } : null,
       next: next ? { ...next, slug: slugify(next._meta.filePath, next.title) } : null,
+      timeToRead: readingTime(doc.content).text,
     };
   },
 });
