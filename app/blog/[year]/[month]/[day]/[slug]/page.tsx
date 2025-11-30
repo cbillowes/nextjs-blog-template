@@ -1,3 +1,4 @@
+import { Markdown } from '@/components/markdown';
 import { allPosts, Post } from 'content-collections';
 import Image from 'next/image';
 
@@ -31,7 +32,7 @@ export default async function BlogPostPage({
         </p>
         <div className="prose prose-lg mx-auto">
           <p>{post.summary}</p>
-          <div id="post" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <Markdown id="post" content={post.content} />
         </div>
       </div>
     </div>
