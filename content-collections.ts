@@ -1,6 +1,15 @@
 import { defineCollection, defineConfig } from '@content-collections/core';
 import { z } from 'zod';
 
+function slugify(filePath: string, title: string) {
+  const [year, month, day] = filePath.split('-');
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return `/blog/${year}/${month}/${day}/${slug}`;
+}
+
 const posts = defineCollection({
   name: 'posts',
   directory: 'data/posts',
@@ -20,6 +29,7 @@ const posts = defineCollection({
     const idx = docs.findIndex((d) => doc._meta.filePath === d._meta.filePath);
     return {
       ...doc,
+      slug: slugify(doc._meta.fileName, doc.title),
       prev: idx > 0 ? docs[idx - 1] : null,
       next: idx < docs.length - 1 ? docs[idx + 1] : null,
     };
