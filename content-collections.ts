@@ -33,8 +33,12 @@ const posts = defineCollection({
     return {
       ...doc,
       slug: slugify(doc._meta.fileName, doc.title),
-      prev: prev ? { ...prev, slug: slugify(prev._meta.filePath, prev.title) } : null,
-      next: next ? { ...next, slug: slugify(next._meta.filePath, next.title) } : null,
+      prev: prev
+        ? { ...prev, slug: slugify(prev._meta.filePath, prev.title) }
+        : null,
+      next: next
+        ? { ...next, slug: slugify(next._meta.filePath, next.title) }
+        : null,
       timeToRead: readingTime(doc.content).text,
       hero: doc.hero ? `/hero/${doc.hero}` : `/hero/fallback.jpg`,
     };
