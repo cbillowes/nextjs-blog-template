@@ -4,6 +4,7 @@ import { stackClientApp } from '../stack/client';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Navigation } from '@/components/navigation';
+import { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,8 +33,10 @@ export default function RootLayout({
       >
         <StackProvider app={stackClientApp}>
           <StackTheme>
-            <Navigation />
-            {children}
+            <Suspense fallback={null}>
+              <Navigation />
+              {children}
+            </Suspense>
           </StackTheme>
         </StackProvider>
       </body>
