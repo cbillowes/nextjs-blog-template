@@ -1,9 +1,11 @@
+'use client';
+
 import { useState } from 'react';
-import Image from 'next/image';
 import { like, unlike } from '@/db/likes';
 import { BiSolidHeart, BiHeart } from 'react-icons/bi';
-import { Spinner } from '@/components/spinner';
 import { useUser } from '@stackframe/stack';
+import { Tooltip, Spinner, Card } from 'flowbite-react';
+import Link from 'next/link';
 
 export function Post({
   slug,
@@ -48,58 +50,60 @@ export function Post({
   };
 
   return (
-    <li
-      key={slug}
-      className="border-10 border-gray-700 rounded-lg overflow-hidden shadow-lg"
-    >
-      <a href={slug}>
-        <Image src={hero} alt={title} width={600} height={400} />
-        <div className="p-4">
-          <h3 className="font-bold text-lg">{title}</h3>
-          <p>
-            {timeToRead} &middot; {date}
-          </p>
-          <p>{summary}</p>
-        </div>
-      </a>
-      {!user && (
-        <div className="p-4 text-gray-500 flex items-center gap-2">
-          <BiSolidHeart
-            className="cursor-pointer"
-            onClick={() => {
-              window.location.href = '/handler/login';
-            }}
-          />
-          Log in to like this post
-        </div>
+    <Card className="w-full" imgAlt={title} imgSrc={hero}>
+      <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        <Link href={slug}>{title}</Link>
+      </h5>
+      <div className="font-normal text-gray-700 dark:text-gray-400">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {timeToRead} &middot; {date}
+        </p>
+        {summary}
+      </div>
+      <div>
+        {!user && (
+          <div className="flex items-center gap-2">
+            <BiSolidHeart
+              className="cursor-pointer"
+              onClick={() => {
+                window.location.href = '/handler/login';
+              }}
+            />
+            Log in to like this post
+          </div>
+        )}
+        {user && (
+          <div>
+            {busy && <Spinner size="sm" />}
+            {!busy && (
+              <div>
+                {liked ? (
+                  <Tooltip content="Unlike">
+                    <BiSolidHeart
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => {
+                        handleClick(true, slug);
+                      }}
+                    />
+                  </Tooltip>
+                ) : (
+                  <Tooltip content="Like">
+                    <BiHeart
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => {
+                        handleClick(false, slug);
+                      }}
+                    />
+                  </Tooltip>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      {errorMessage && (
+        <div className="text-red-400 font-bold">{errorMessage}</div>
       )}
-      {user && (
-        <div className="p-4">
-          {busy && <Spinner />}
-          {!busy && (
-            <div>
-              {liked ? (
-                <BiSolidHeart
-                  className="cursor-pointer"
-                  onClick={() => {
-                    handleClick(true, slug);
-                  }}
-                />
-              ) : (
-                <BiHeart
-                  className="cursor-pointer"
-                  onClick={() => {
-                    handleClick(false, slug);
-                  }}
-                />
-              )}
-            </div>
-          )}
-          {errorMessage && (
-            <div className="text-red-400 font-bold">Error: {errorMessage}</div>
-          )}
-        </div>
-      )}
-    </li>
+    </Card>
   );
 }
