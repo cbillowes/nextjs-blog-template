@@ -1,9 +1,13 @@
-import type { NextConfig } from "next";
-import { withContentCollections } from "@content-collections/next";
+import type { NextConfig } from 'next';
+import { withContentCollections } from '@content-collections/next';
+import withFlowbiteReact from 'flowbite-react/plugin/nextjs';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ['flowbite-react'],
 };
 
 // withContentCollections must be the outermost plugin
-export default withContentCollections(nextConfig);
+// const plugins = [withFlowbiteReact, withContentCollections];
+withContentCollections(nextConfig);
+
+export default withFlowbiteReact(nextConfig);

@@ -5,6 +5,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Navigation } from '@/components/navigation';
 import { Suspense } from 'react';
+import { ThemeModeScript, ThemeProvider } from 'flowbite-react';
+import { flowbiteTheme } from '@/flowbite-theme';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,15 +29,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeModeScript />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <StackProvider app={stackClientApp}>
           <StackTheme>
             <Suspense fallback={null}>
-              <Navigation />
-              {children}
+              <ThemeProvider theme={flowbiteTheme}>
+                <Navigation />
+                {children}
+              </ThemeProvider>
             </Suspense>
           </StackTheme>
         </StackProvider>
