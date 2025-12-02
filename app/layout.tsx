@@ -7,6 +7,8 @@ import { Navigation } from '@/components/navigation';
 import { Suspense } from 'react';
 import { ThemeModeScript, ThemeProvider } from 'flowbite-react';
 import { flowbiteTheme } from '@/flowbite-theme';
+import { ProgressBar } from '@/components/progress-bar';
+import { Skeleton } from '@/components/skeleton';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -39,10 +41,12 @@ export default function RootLayout({
         <StackProvider app={stackClientApp}>
           <StackTheme>
             <Suspense fallback={null}>
-              <ThemeProvider theme={flowbiteTheme}>
-                <Navigation />
-                {children}
-              </ThemeProvider>
+              <ProgressBar>
+                <ThemeProvider theme={flowbiteTheme}>
+                  <Navigation />
+                  {children}
+                </ThemeProvider>
+              </ProgressBar>
             </Suspense>
           </StackTheme>
         </StackProvider>
