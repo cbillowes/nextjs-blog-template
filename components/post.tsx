@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { like, unlike } from '@/db/likes';
 import { BiSolidHeart, BiHeart } from 'react-icons/bi';
 import { useUser } from '@stackframe/stack';
-import { Tooltip, Spinner, Card } from 'flowbite-react';
+import { Tooltip, Spinner, Card, Toast, ToastToggle } from 'flowbite-react';
 import Link from 'next/link';
+import { HiCheck } from 'react-icons/hi2';
+import { HiX } from 'react-icons/hi';
 
 export function Post({
   slug,
@@ -15,6 +16,7 @@ export function Post({
   date,
   summary,
   liked,
+  onUnlike,
 }: {
   slug: string;
   hero: string;
@@ -23,14 +25,39 @@ export function Post({
   date: string;
   summary: string;
   liked: boolean;
+  onUnlike?: (slug: string) => void;
 }) {
   const user = useUser();
+  const [isLiked, setIsLiked] = useState(liked);
   const [busy, setBusy] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [toast, setToast] = useState({
+    show: false,
+    message: '',
+    isError: false,
+  });
 
   const handleError = (error: unknown) => {
     if (error instanceof Error) {
-      setErrorMessage(error.message);
+      setToast({ show: true, message: error.message, isError: true });
+    }
+  };
+
+  const handleAction = async (endpoint: string, slug: string) => {
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ slug }),
+      });
+      const { message } = await response.json();
+      if (!response.ok) {
+        throw new Error(message || 'Something went wrong');
+      }
+      setToast({ show: true, message, isError: false });
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -38,9 +65,12 @@ export function Post({
     try {
       setBusy(true);
       if (liked) {
-        await unlike(slug);
+        await handleAction('/api/unlike', slug);
+        setIsLiked(false);
+        onUnlike?.(slug);
       } else {
-        await like(slug);
+        await handleAction('/api/like', slug);
+        setIsLiked(true);
       }
     } catch (error) {
       handleError(error);
@@ -77,7 +107,7 @@ export function Post({
             {busy && <Spinner size="sm" />}
             {!busy && (
               <div>
-                {liked ? (
+                {isLiked ? (
                   <Tooltip content="Unlike">
                     <BiSolidHeart
                       className="text-red-500 cursor-pointer"
@@ -101,8 +131,21 @@ export function Post({
           </div>
         )}
       </div>
-      {errorMessage && (
-        <div className="text-red-400 font-bold">{errorMessage}</div>
+      {toast.show && (
+        <Toast className="absolute bottom-2 right-2">
+          {!toast.isError && (
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+              <HiCheck className="h-5 w-5" />
+            </div>
+          )}
+          {toast.isError && (
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+              <HiX className="h-5 w-5" />
+            </div>
+          )}
+          <div className="ml-3 text-sm font-normal">{toast.message}</div>
+          <ToastToggle />
+        </Toast>
       )}
     </Card>
   );

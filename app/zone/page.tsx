@@ -13,7 +13,7 @@ export default async function ZonePage() {
       <h1 className="text-4xl font-bold text-center my-8">
         Welcome to the Blog
       </h1>
-      <Posts posts={likedPosts} likes={likes} />
+      <Posts posts={likedPosts} likes={likes} filterOnChange />
     </main>
   );
 }
