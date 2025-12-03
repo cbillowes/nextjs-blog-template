@@ -47,3 +47,5 @@ next-env.d.ts
 .netlify
 
 .flowbite-react/
+
+deno.lock

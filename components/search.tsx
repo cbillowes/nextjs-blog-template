@@ -1,0 +1,204 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { liteClient as algoliasearch } from 'algoliasearch/lite';
+import {
+  InstantSearch,
+  UseSearchBoxProps,
+  useInstantSearch,
+  useSearchBox,
+} from 'react-instantsearch';
+import {
+  Alert,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Spinner,
+  TextInput,
+} from 'flowbite-react';
+import { FaSearch } from 'react-icons/fa';
+import { FiCommand } from 'react-icons/fi';
+import { FaAlgolia } from 'react-icons/fa6';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useClickOutside } from '@/hooks/use-click-outside';
+
+const ALGOLIA_APP_ID = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!;
+const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!;
+const ALGOLIA_PAGE_INDEX_NAME = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME!;
+
+const searchClient = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_SEARCH_KEY);
+
+function Hit({
+  hit,
+  onNavigate,
+}: {
+  hit: {
+    slug: string;
+    title: string;
+    summary?: string;
+    imageUrl?: string;
+    tags?: string[];
+  };
+  onNavigate: () => void;
+}) {
+  const { slug, imageUrl, title, summary, tags } = hit;
+  return (
+    <div>
+      <Link href={slug} onClick={onNavigate}>
+        <div className="py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mb-2 flex items-center gap-4 cursor-pointer">
+          {imageUrl && (
+            <Image
+              className="w-40 h-40 mb-1 object-cover rounded-md hidden md:block"
+              src={imageUrl}
+              alt={title}
+              width={80}
+              height={80}
+            />
+          )}
+          <div>
+            <h2 className="text-lg text-pink-600 font-bold">{title}</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              {summary?.substring(0, 250)}
+            </p>
+            <div>
+              {tags?.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-sm text-gray-500 dark:text-gray-400 mr-2"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+function CustomSearchBox(
+  props: UseSearchBoxProps & { onNavigate: () => void },
+) {
+  const { onNavigate } = props;
+  const { query, refine } = useSearchBox(props);
+  const { status, error, results } = useInstantSearch();
+  const [inputValue, setInputValue] = useState(query);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="w-full">
+      <div
+        role="search"
+        className="w-full flex items-center gap-2 mb-4 relative"
+      >
+        <div className="flex items-center gap-2 w-full">
+          <TextInput
+            ref={inputRef}
+            autoComplete="off"
+            autoCorrect="on"
+            autoCapitalize="off"
+            placeholder="Search for something…"
+            spellCheck={false}
+            maxLength={512}
+            type="search"
+            className="w-full"
+            value={inputValue}
+            onChange={(event) => {
+              setInputValue(event.currentTarget.value);
+              refine(event.currentTarget.value);
+            }}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                refine(inputValue);
+              }
+            }}
+          />
+        </div>
+      </div>
+      {['loading', 'stalled'].includes(status) ? (
+        <Spinner
+          aria-label="Loading..."
+          className="w-full flex justify-center items-center"
+        />
+      ) : (
+        <div>
+          {error && <Alert color="red">Error: {error.message}</Alert>}
+          {results && results.hits.length === 0 && (
+            <Alert color="yellow">No results found.</Alert>
+          )}
+          {results && results.hits.length > 0 && (
+            <div className="max-h-80 overflow-scroll mb-8">
+              {results.hits.map((hit) => (
+                <Hit key={hit.objectID} hit={hit} onNavigate={onNavigate} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function Search() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const modalRef = useClickOutside<HTMLDivElement>(() => setIsOpen(false));
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsOpen((x) => !x);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  return (
+    <InstantSearch
+      indexName={ALGOLIA_PAGE_INDEX_NAME}
+      searchClient={searchClient}
+    >
+      <button
+        className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-lg p-2.5"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center text-sm text-gray-400 dark:text-gray-500">
+          <FiCommand />
+          &nbsp;K
+        </div>
+        <FaSearch />
+      </button>
+      {isMounted && (
+        <Modal
+          ref={modalRef}
+          show={isOpen}
+          onClose={() => setIsOpen(false)}
+          className="text-black dark:text-white"
+        >
+          <ModalHeader className="border-gray-200 dark:border-gray-800 pb-0">
+            Search for something
+          </ModalHeader>
+          <ModalBody className="max-h-[400px] overflow-hidden px-4 py-2 pb-8">
+            <CustomSearchBox onNavigate={() => setIsOpen(false)} />
+          </ModalBody>
+          <ModalFooter className="px-4 py-4">
+            <p className="text-gray-500 dark:text-gray-400 flex items-center gap-1 justify-end w-full text-md">
+              Powered by <FaAlgolia /> AlgoliaSearch
+            </p>
+          </ModalFooter>
+        </Modal>
+      )}
+    </InstantSearch>
+  );
+}

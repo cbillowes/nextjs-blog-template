@@ -2,6 +2,7 @@
 
 import { useStackApp, useUser } from '@stackframe/stack';
 import Link from 'next/link';
+import { Search } from '@/components/search';
 
 export function Navigation() {
   const app = useStackApp();
@@ -34,6 +35,7 @@ export function Navigation() {
           </li>
         )}
       </ul>
+      <Search />
     </nav>
   );
 }

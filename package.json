@@ -3,17 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "netlify dev:exec drizzle-kit migrate",
-    "db:studio": "netlify dev:exec drizzle-kit studio"
+    "db:studio": "netlify dev:exec drizzle-kit studio",
+    "search:index": "node ./scripts/search.js"
   },
   "dependencies": {
     "@netlify/neon": "^0.1.0",
     "@stackframe/stack": "^2.8.54",
+    "algoliasearch": "^5.45.0",
     "drizzle-orm": "^0.44.7",
     "flowbite": "^4.0.1",
     "flowbite-react": "^0.12.10",
@@ -22,6 +24,7 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-icons": "^5.5.0",
+    "react-instantsearch": "^7.20.0",
     "react-markdown": "^10.1.0",
     "reading-time": "^1.5.0",
     "rehype-raw": "^7.0.0",
@@ -35,6 +38,7 @@
     "@types/nprogress": "^0.2.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.7",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
