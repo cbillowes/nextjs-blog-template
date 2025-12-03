@@ -4,7 +4,7 @@ import { allPosts } from 'content-collections';
 function getPathWithDomain(path: string) {
   return path.startsWith('http')
     ? path
-    : `${process.env.SEARCH_DOMAIN}${path}`;
+    : `${process.env.NEXT_PUBLIC_SEARCH_DOMAIN}${path}`;
 }
 
 export async function GET() {
