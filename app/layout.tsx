@@ -8,7 +8,6 @@ import { Suspense } from 'react';
 import { ThemeModeScript, ThemeProvider } from 'flowbite-react';
 import { flowbiteTheme } from '@/flowbite-theme';
 import { ProgressBar } from '@/components/progress-bar';
-import { Skeleton } from '@/components/skeleton';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
