@@ -43,7 +43,7 @@ export default function RootLayout({
               <ProgressBar>
                 <ThemeProvider theme={flowbiteTheme}>
                   <Navigation />
-                  {children}
+                  <div className="mx-auto max-w-7xl px-4 py-12">{children}</div>
                 </ThemeProvider>
               </ProgressBar>
             </Suspense>
