@@ -1,10 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { BiSolidHeart, BiHeart } from 'react-icons/bi';
 import { useUser } from '@stackframe/stack';
 import { Tooltip, Spinner, Card, Toast, ToastToggle } from 'flowbite-react';
-import Link from 'next/link';
+import { BiSolidHeart, BiHeart } from 'react-icons/bi';
 import { HiCheck } from 'react-icons/hi2';
 import { HiX } from 'react-icons/hi';
 
@@ -42,10 +42,10 @@ export function Post({
     }
   };
 
-  const handleAction = async (endpoint: string, slug: string) => {
+  const handleAction = async (method: string, slug: string) => {
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
+      const response = await fetch('/api/like', {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -61,15 +61,18 @@ export function Post({
     }
   };
 
+  const like = (slug: string) => handleAction('POST', slug);
+  const unlike = (slug: string) => handleAction('DELETE', slug);
+
   const handleClick = async (liked: boolean, slug: string) => {
     try {
       setBusy(true);
       if (liked) {
-        await handleAction('/api/unlike', slug);
+        await unlike(slug);
         setIsLiked(false);
         onUnlike?.(slug);
       } else {
-        await handleAction('/api/like', slug);
+        await like(slug);
         setIsLiked(true);
       }
     } catch (error) {

@@ -1,4 +1,4 @@
-import { like } from '@/db/likes';
+import { like, unlike } from '@/db/likes';
 import { stackServerApp } from '@/stack/server';
 import { NextResponse } from 'next/server';
 
@@ -9,12 +9,25 @@ export async function POST(request: Request) {
     await like(slug);
     return NextResponse.json({
       message: 'Liked',
-      added: true,
     });
   } else {
     return NextResponse.json({
       message: 'You need to be logged in',
-      added: false,
+    });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const { slug } = await request.json();
+  const user = await stackServerApp.getUser();
+  if (user) {
+    await unlike(slug);
+    return NextResponse.json({
+      message: 'Unliked',
+    });
+  } else {
+    return NextResponse.json({
+      message: 'You need to be logged in',
     });
   }
 }
