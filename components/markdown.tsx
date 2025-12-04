@@ -5,8 +5,11 @@ import { HeadingLink } from './heading-link';
 import { ReactNode } from 'react';
 import { Alert } from './alert';
 import { YouTubeEmbed } from './youtube';
+import * as emoji from 'node-emoji';
 
 export function Markdown({ id, content }: { id: string; content: string }) {
+  const processedContent = emoji.emojify(content);
+
   function getHeadingId(children: string | ReactNode) {
     return typeof children === 'string'
       ? children.replace(/\s+/g, '-').toLowerCase()
@@ -45,7 +48,7 @@ export function Markdown({ id, content }: { id: string; content: string }) {
           },
         }}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );
